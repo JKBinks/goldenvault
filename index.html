@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Golden Vault — Music Box</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Cinzel:wght@400;600&family=IM+Fell+English:ital@0;1&display=swap');
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  width:100%; height:100%;
+  overflow:hidden;
+  font-family:'Cinzel', serif;
+  background:#060301;
+}
+
+/* ═══════════════════════════════════
+   ANIMATED BACKGROUND
+═══════════════════════════════════ */
+.bg {
+  position:fixed; inset:0;
+  background: radial-gradient(ellipse at 50% 55%, #1e0e05 0%, #0e0603 45%, #060301 100%);
+}
+.bg-light {
+  position:absolute; border-radius:50%;
+  filter:blur(65px);
+  animation:driftLight linear infinite;
+  pointer-events:none;
+}
+.bg-light.l1 {
+  width:500px; height:400px;
+  background:radial-gradient(ellipse, rgba(110,45,5,.32) 0%, transparent 70%);
+  top:-10%; left:-10%;
+  animation-duration:28s;
+}
+.bg-light.l2 {
+  width:420px; height:360px;
+  background:radial-gradient(ellipse, rgba(80,30,3,.24) 0%, transparent 70%);
+  top:40%; right:-15%;
+  animation-duration:36s; animation-delay:-12s;
+}
+.bg-light.l3 {
+  width:360px; height:300px;
+  background:radial-gradient(ellipse, rgba(60,20,2,.2) 0%, transparent 70%);
+  bottom:-10%; left:30%;
+  animation-duration:32s; animation-delay:-20s;
+}
+@keyframes driftLight {
+  0%   { transform:translate(0,0) scale(1); }
+  25%  { transform:translate(40px,-30px) scale(1.08); }
+  50%  { transform:translate(20px,50px)  scale(.95); }
+  75%  { transform:translate(-30px,20px) scale(1.04); }
+  100% { transform:translate(0,0) scale(1); }
+}
+.mist {
+  position:absolute; left:0; right:0; bottom:0; height:200px;
+  background:
+    radial-gradient(ellipse 70% 100% at 30% 100%, rgba(201,168,76,.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 100% at 70% 100%, rgba(201,168,76,.06) 0%, transparent 70%);
+  animation:mistDrift 18s ease-in-out infinite alternate;
+  pointer-events:none;
+}
+@keyframes mistDrift {
+  0%   { opacity:.6; transform:scaleX(1) translateX(0); }
+  50%  { opacity:1;  transform:scaleX(1.05) translateX(14px); }
+  100% { opacity:.7; transform:scaleX(.97) translateX(-8px); }
+}
+#particles { position:fixed; inset:0; pointer-events:none; overflow:hidden; }
+.ptcl {
+  position:absolute; border-radius:50%;
+  background:#c9a84c;
+  animation:emberRise linear infinite; opacity:0;
+}
+@keyframes emberRise {
+  0%   { opacity:0;   transform:translateY(0) rotate(0deg) scale(1); }
+  8%   { opacity:.6; }
+  85%  { opacity:.2; }
+  100% { opacity:0;   transform:translateY(-110vh) rotate(540deg) scale(.4); }
+}
+.vignette {
+  position:fixed; inset:0;
+  background:radial-gradient(ellipse at 50% 50%, transparent 30%, rgba(0,0,0,.8) 100%);
+  pointer-events:none;
+}
+
+/* ═══════════════════════════════════
+   PAGE LAYOUT
+═══════════════════════════════════ */
+.page {
+  position:relative; z-index:1;
+  width:100%; height:100%;
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+}
+
+.vault-title {
+  font-family:'Cinzel Decorative', serif;
+  color:#c9a84c;
+  font-size:clamp(.65rem,1.6vw,.95rem);
+  letter-spacing:.55em; text-transform:uppercase;
+  margin-bottom:2rem;
+  text-shadow:0 0 35px rgba(201,168,76,.6), 0 2px 5px rgba(0,0,0,.9);
+  animation:titleGlow 4s ease-in-out infinite alternate;
+}
+@keyframes titleGlow {
+  0%   { text-shadow:0 0 20px rgba(201,168,76,.4), 0 2px 5px rgba(0,0,0,.9); }
+  100% { text-shadow:0 0 55px rgba(201,168,76,.8), 0 0 22px rgba(240,200,80,.35), 0 2px 5px rgba(0,0,0,.9); }
+}
+
+/* ═══════════════════════════════════
+   SCENE SVG
+═══════════════════════════════════ */
+#scene {
+  overflow:visible;
+  filter:drop-shadow(0 20px 50px rgba(0,0,0,.9)) drop-shadow(0 5px 15px rgba(0,0,0,.7));
+}
+
+/* Candle flames */
+.flame-outer {
+  animation:outerFlicker 1.4s ease-in-out infinite alternate;
+  transform-origin:50% 90%;
+}
+.flame-inner {
+  animation:innerFlicker 1.1s ease-in-out infinite alternate;
+  transform-origin:50% 90%;
+}
+.flame-outer2 { animation-delay:-.7s; transform-origin:50% 90%; }
+.flame-inner2 { animation-delay:-.45s; transform-origin:50% 90%; }
+.halo { animation:haloBreath 1.5s ease-in-out infinite alternate; transform-origin:50% 50%; }
+.halo2{ animation:haloBreath 1.5s ease-in-out infinite alternate; transform-origin:50% 50%; animation-delay:-.6s; }
+
+@keyframes outerFlicker {
+  0%   { transform:scaleX(1)   scaleY(1)    rotate(-1.5deg); opacity:.9; }
+  33%  { transform:scaleX(.8)  scaleY(1.12) rotate(2deg);    opacity:1;  }
+  66%  { transform:scaleX(1.1) scaleY(.88)  rotate(-.8deg);  opacity:.85;}
+  100% { transform:scaleX(.9)  scaleY(1.06) rotate(2.5deg);  opacity:1;  }
+}
+@keyframes innerFlicker {
+  0%   { transform:scaleX(1)   scaleY(1)   rotate(1deg);  }
+  50%  { transform:scaleX(.88) scaleY(1.1) rotate(-1deg); }
+  100% { transform:scaleX(1.1) scaleY(.9)  rotate(.5deg); }
+}
+@keyframes haloBreath {
+  0%   { opacity:.4; transform:scale(1);    }
+  100% { opacity:.9; transform:scale(1.3);  }
+}
+
+/* Lock pulse */
+.lock-glow { animation:lockPulse 2.2s ease-in-out infinite; transform-origin:50% 50%; }
+@keyframes lockPulse {
+  0%,100% { opacity:.3; transform:scale(1);   }
+  50%     { opacity:.9; transform:scale(1.25); }
+}
+
+/* Dancer */
+.dancer { opacity:0; transition:opacity .8s ease; transform-origin:17px 50px; }
+.dancer.show { opacity:1; }
+.dancer.spin { animation:spinFigure 2.6s linear infinite; }
+@keyframes spinFigure {
+  0%   { transform:rotateY(0deg)   scaleX(1); }
+  24%  { transform:rotateY(90deg)  scaleX(.08); }
+  50%  { transform:rotateY(180deg) scaleX(1); }
+  74%  { transform:rotateY(270deg) scaleX(.08); }
+  100% { transform:rotateY(360deg) scaleX(1); }
+}
+
+/* Lid animation */
+#lid-group {
+  transform-origin: 160px 218px; /* bottom-centre of lid */
+  transition: transform 1.6s cubic-bezier(.34,1.1,.64,1);
+}
+#lid-group.open {
+  transform: rotateX(-160deg);
+}
+
+/* Lock click */
+#lock-group { cursor:pointer; }
+#lock-group:hover .lock-plate { filter:brightness(1.4); }
+
+/* Light burst */
+.light-burst { opacity:0; }
+.light-burst.fire { animation:lburst 2s ease-out forwards; }
+@keyframes lburst {
+  0%   { opacity:0; r:10; }
+  20%  { opacity:.7; }
+  100% { opacity:0; r:120; }
+}
+
+/* Musical notes */
+.note {
+  position:fixed; pointer-events:none;
+  color:#f0d478;
+  text-shadow:0 0 14px rgba(201,168,76,.9);
+  opacity:0;
+  animation:noteRise 3s ease-out forwards;
+  z-index:80;
+}
+@keyframes noteRise {
+  0%   { opacity:0;   transform:translate(0,0) rotate(0deg) scale(.5); }
+  12%  { opacity:1;   transform:translate(0,-20px) rotate(-10deg) scale(1.1); }
+  100% { opacity:0;   transform:translate(var(--nx),-130px) rotate(var(--nr)) scale(.8); }
+}
+
+/* Hint */
+.hint {
+  font-family:'IM Fell English', serif; font-style:italic;
+  color:#c9a84c; font-size:.88rem; letter-spacing:.1em;
+  margin-top:1.5rem;
+  text-shadow:0 0 22px rgba(201,168,76,.55);
+  opacity:0; animation:hintReveal 3s ease 2s forwards;
+  transition:opacity .5s;
+}
+@keyframes hintReveal {
+  0%  { opacity:0; } 40% { opacity:.72; } 100% { opacity:.48; }
+}
+
+/* ═══════════════════════════════════
+   SCROLL OVERLAY
+═══════════════════════════════════ */
+.overlay {
+  position:fixed; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  z-index:300; opacity:0; pointer-events:none;
+  transition:opacity .7s ease;
+}
+.overlay.show {
+  opacity:1; pointer-events:all;
+  background:rgba(4,2,1,.82);
+  backdrop-filter:blur(5px);
+}
+.scroll-outer {
+  max-width:540px; width:92%;
+  transform:translateY(28px) scale(.93);
+  transition:transform 1s cubic-bezier(.34,1.1,.64,1) .2s;
+}
+.overlay.show .scroll-outer { transform:translateY(0) scale(1); }
+
+.scroll-rod {
+  height:36px;
+  background:linear-gradient(180deg,#f0d478 0%,#c9a84c 45%,#7a5818 100%);
+  border-radius:7px;
+  box-shadow:0 6px 20px rgba(0,0,0,.6), inset 0 2px 5px rgba(255,255,255,.18);
+  position:relative; overflow:hidden;
+}
+.scroll-rod::before {
+  content:''; position:absolute; inset:0;
+  background:repeating-linear-gradient(90deg,transparent,transparent 18px,rgba(0,0,0,.065) 18px,rgba(0,0,0,.065) 19px);
+}
+.scroll-parchment {
+  background:linear-gradient(170deg,#f9edd6 0%,#f2e1bc 40%,#ecd9ac 70%,#f3e3be 100%);
+  padding:44px 52px 36px; position:relative;
+  box-shadow:0 0 0 1.5px rgba(160,110,20,.38),0 22px 65px rgba(0,0,0,.7),inset 0 0 90px rgba(160,110,20,.12);
+  border-left:3px solid rgba(160,110,20,.2); border-right:3px solid rgba(160,110,20,.2);
+}
+.scroll-parchment::before {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background:radial-gradient(ellipse 80% 50% at 15% 15%,rgba(160,100,10,.09) 0%,transparent 60%),
+             radial-gradient(ellipse 60% 40% at 85% 85%,rgba(140,90,5,.07) 0%,transparent 60%);
+}
+.s-emblem { text-align:center; margin-bottom:16px; }
+.s-emblem svg { width:50px; height:50px; }
+.s-title { font-family:'Cinzel Decorative',serif; font-size:.95rem; color:#5a3208; text-align:center; letter-spacing:.3em; text-transform:uppercase; }
+.s-rule  { text-align:center; color:rgba(120,70,15,.5); font-size:1.1rem; letter-spacing:.45em; margin:12px 0; }
+.s-body  { font-family:'IM Fell English',serif; font-style:italic; font-size:1.02rem; line-height:1.9; color:#3a2005; text-align:center; }
+.s-line  { display:block; opacity:0; transform:translateY(7px); transition:opacity .56s ease,transform .56s ease; }
+.s-line.on { opacity:1; transform:translateY(0); }
+.s-close {
+  display:block; margin:26px auto 0; padding:12px 32px;
+  background:linear-gradient(135deg,#7a5818,#c9a84c,#7a5818);
+  border:none; border-radius:3px;
+  font-family:'Cinzel',serif; font-size:.72rem; letter-spacing:.24em; text-transform:uppercase;
+  color:#1a0e05; cursor:pointer;
+  box-shadow:0 5px 18px rgba(0,0,0,.5);
+  opacity:0; transition:opacity .5s ease,transform .2s,box-shadow .2s;
+}
+.s-close.on { opacity:1; }
+.s-close:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(0,0,0,.55),0 0 25px rgba(201,168,76,.38); }
+</style>
+</head>
+<body>
+
+<!-- BACKGROUND -->
+<div class="bg">
+  <div class="bg-light l1"></div>
+  <div class="bg-light l2"></div>
+  <div class="bg-light l3"></div>
+  <div class="mist"></div>
+</div>
+<div id="particles"></div>
+<div class="vignette"></div>
+
+<div class="page">
+  <p class="vault-title">The Golden Vault</p>
+
+  <!-- ══════════════════════════════════════════
+       SINGLE SVG — entire scene
+  ══════════════════════════════════════════ -->
+  <svg id="scene" width="520" height="320" viewBox="0 0 520 320">
+    <defs>
+      <!-- Wood grain patterns -->
+      <pattern id="grainH" x="0" y="0" width="34" height="1" patternUnits="userSpaceOnUse">
+        <rect width="34" height="1" fill="none"/>
+        <rect width="15" height="1" fill="rgba(0,0,0,.06)"/>
+      </pattern>
+      <pattern id="grainLid" x="0" y="0" width="32" height="1" patternUnits="userSpaceOnUse">
+        <rect width="32" height="1" fill="none"/>
+        <rect width="14" height="1" fill="rgba(0,0,0,.05)"/>
+      </pattern>
+
+      <!-- Wood fills -->
+      <linearGradient id="woodBase" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#9c5220"/>
+        <stop offset="35%"  stop-color="#6e3418"/>
+        <stop offset="75%"  stop-color="#4a2010"/>
+        <stop offset="100%" stop-color="#2a1206"/>
+      </linearGradient>
+      <linearGradient id="woodLid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#c98040"/>
+        <stop offset="20%"  stop-color="#b87030"/>
+        <stop offset="55%"  stop-color="#9c5220"/>
+        <stop offset="85%"  stop-color="#6e3418"/>
+        <stop offset="100%" stop-color="#4a2010"/>
+      </linearGradient>
+      <linearGradient id="woodSide" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#2a1206"/>
+        <stop offset="100%" stop-color="#4a2010"/>
+      </linearGradient>
+      <linearGradient id="woodTop" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#b87030"/>
+        <stop offset="100%" stop-color="#6e3418"/>
+      </linearGradient>
+
+      <!-- Gold gradient -->
+      <linearGradient id="goldH" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"   stop-color="#7a5818" stop-opacity="0"/>
+        <stop offset="20%"  stop-color="#c9a84c"/>
+        <stop offset="50%"  stop-color="#f0d478"/>
+        <stop offset="80%"  stop-color="#c9a84c"/>
+        <stop offset="100%" stop-color="#7a5818" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="goldV" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#f0d478"/>
+        <stop offset="45%"  stop-color="#c9a84c"/>
+        <stop offset="100%" stop-color="#7a5818"/>
+      </linearGradient>
+      <linearGradient id="goldLock" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#f0d478"/>
+        <stop offset="40%"  stop-color="#c9a84c"/>
+        <stop offset="100%" stop-color="#7a5818"/>
+      </linearGradient>
+      <linearGradient id="goldFoot" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#f0d478"/>
+        <stop offset="50%"  stop-color="#c9a84c"/>
+        <stop offset="100%" stop-color="#4a2e08"/>
+      </linearGradient>
+      <linearGradient id="goldHinge" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#f0d478"/>
+        <stop offset="50%"  stop-color="#c9a84c"/>
+        <stop offset="100%" stop-color="#7a5818"/>
+      </linearGradient>
+
+      <!-- Velvet interior -->
+      <radialGradient id="velvet" cx="50%" cy="20%" r="80%">
+        <stop offset="0%"   stop-color="#2e080e"/>
+        <stop offset="60%"  stop-color="#1a0508"/>
+        <stop offset="100%" stop-color="#0d0205"/>
+      </radialGradient>
+
+      <!-- Sheen on lid top -->
+      <linearGradient id="lidSheen" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="rgba(255,255,255,.07)"/>
+        <stop offset="50%" stop-color="rgba(255,255,255,.02)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+      </linearGradient>
+
+      <!-- Candle wax -->
+      <linearGradient id="wax" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="#f8ecd0"/>
+        <stop offset="45%"  stop-color="#e0cc90"/>
+        <stop offset="80%"  stop-color="#c4aa70"/>
+        <stop offset="100%" stop-color="#a08050"/>
+      </linearGradient>
+
+      <!-- Clip for interior -->
+      <clipPath id="interiorClip">
+        <rect x="90" y="220" width="340" height="88" rx="3"/>
+      </clipPath>
+
+      <!-- Drop shadow filter -->
+      <filter id="boxShadow" x="-10%" y="-10%" width="120%" height="140%">
+        <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="rgba(0,0,0,.8)"/>
+      </filter>
+    </defs>
+
+    <!-- ═══════════════════════════════
+         LEFT CANDLE  (x=48 centre)
+    ═══════════════════════════════ -->
+    <!-- Halo glow -->
+    <ellipse class="halo" cx="48" cy="60" rx="28" ry="28" fill="rgba(255,200,50,.18)"/>
+    <!-- Outer flame -->
+    <g class="flame-outer" style="transform-origin:48px 95px">
+      <ellipse cx="48" cy="72" rx="9" ry="16"
+        fill="url(#flameOuter)" opacity=".85"/>
+    </g>
+    <defs>
+      <radialGradient id="flameOuter" cx="50%" cy="80%" r="60%">
+        <stop offset="0%"  stop-color="#fff7e0"/>
+        <stop offset="30%" stop-color="#ffd040"/>
+        <stop offset="70%" stop-color="#ff8800"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+      <radialGradient id="flameInner" cx="50%" cy="80%" r="60%">
+        <stop offset="0%"  stop-color="#ffffff"/>
+        <stop offset="50%" stop-color="#fff8c0"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+      <radialGradient id="flameOuter2" cx="50%" cy="80%" r="60%">
+        <stop offset="0%"  stop-color="#fff7e0"/>
+        <stop offset="30%" stop-color="#ffd040"/>
+        <stop offset="70%" stop-color="#ff8800"/>
+        <stop offset="100%" stop-color="transparent"/>
+      </radialGradient>
+    </defs>
+    <!-- Inner flame -->
+    <g class="flame-inner" style="transform-origin:48px 95px">
+      <ellipse cx="48" cy="76" rx="5" ry="10" fill="url(#flameInner)"/>
+    </g>
+    <!-- Candle body -->
+    <rect x="41" y="88" width="14" height="68" rx="2" fill="url(#wax)"/>
+    <!-- Wick -->
+    <line x1="48" y1="88" x2="48" y2="95" stroke="#1a1008" stroke-width="1.5"/>
+    <!-- Wax drip -->
+    <path d="M55 102 Q58 108 56 118 Q55 122 55 118 Q54 112 55 108Z" fill="rgba(248,236,208,.65)" />
+    <!-- Gold holder -->
+    <rect x="37" y="156" width="22" height="10" rx="4" fill="url(#goldV)" stroke="#7a5818" stroke-width="1"/>
+
+    <!-- ═══════════════════════════════
+         RIGHT CANDLE  (x=472 centre)
+    ═══════════════════════════════ -->
+    <ellipse class="halo2" cx="472" cy="60" rx="28" ry="28" fill="rgba(255,200,50,.18)"/>
+    <g class="flame-outer flame-outer2" style="transform-origin:472px 95px">
+      <ellipse cx="472" cy="72" rx="9" ry="16" fill="url(#flameOuter2)" opacity=".85"/>
+    </g>
+    <g class="flame-inner flame-inner2" style="transform-origin:472px 95px">
+      <ellipse cx="472" cy="76" rx="5" ry="10" fill="url(#flameInner)"/>
+    </g>
+    <rect x="465" y="88" width="14" height="68" rx="2" fill="url(#wax)"/>
+    <line x1="472" y1="88" x2="472" y2="95" stroke="#1a1008" stroke-width="1.5"/>
+    <path d="M465 105 Q462 112 464 122 Q465 126 465 122 Q466 116 465 112Z" fill="rgba(248,236,208,.65)"/>
+    <rect x="461" y="156" width="22" height="10" rx="4" fill="url(#goldV)" stroke="#7a5818" stroke-width="1"/>
+
+    <!-- ═══════════════════════════════
+         BOX BODY (always visible)
+         Base: x=90, y=220, w=340, h=88
+    ═══════════════════════════════ -->
+    <!-- Interior velvet (behind base, shown when lid open) -->
+    <rect x="90" y="220" width="340" height="88" rx="3" fill="url(#velvet)"/>
+    <!-- Inner velvet border -->
+    <rect x="100" y="228" width="320" height="72" rx="2" fill="none" stroke="rgba(180,30,50,.2)" stroke-width="1"/>
+    <!-- Dancer (inside velvet) -->
+    <g id="dancer" class="dancer">
+      <circle cx="260" cy="234" r="6" fill="#c9a84c"/>
+      <line x1="260" y1="240" x2="260" y2="262" stroke="#c9a84c" stroke-width="3" stroke-linecap="round"/>
+      <line x1="260" y1="248" x2="246" y2="258" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="260" y1="248" x2="274" y2="258" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="260" y1="262" x2="252" y2="278" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="260" y1="262" x2="268" y2="278" stroke="#c9a84c" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="252" y1="278" x2="248" y2="286" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+      <line x1="268" y1="278" x2="272" y2="286" stroke="#c9a84c" stroke-width="2" stroke-linecap="round"/>
+    </g>
+
+    <!-- BASE PANEL — solid wood rectangle -->
+    <rect x="90" y="220" width="340" height="88" rx="5"
+          fill="url(#woodBase)" filter="url(#boxShadow)"/>
+    <!-- Wood grain overlay on base -->
+    <rect x="90" y="220" width="340" height="88" rx="5" fill="url(#grainH)" opacity=".9"/>
+    <!-- Sheen -->
+    <rect x="90" y="220" width="340" height="30" rx="5" fill="url(#lidSheen)"/>
+
+    <!-- Base gold top trim -->
+    <rect x="90" y="220" width="340" height="4" rx="2" fill="url(#goldH)"/>
+    <!-- Base gold bottom trim -->
+    <rect x="90" y="304" width="340" height="4" rx="2" fill="url(#goldH)"/>
+    <!-- Base outer border line -->
+    <rect x="92" y="222" width="336" height="84" rx="4" fill="none" stroke="#c9a84c" stroke-width="1.2" opacity=".6"/>
+    <!-- Base inner border line -->
+    <rect x="98" y="228" width="324" height="72" rx="3" fill="none" stroke="#c9a84c" stroke-width=".5" opacity=".35"/>
+
+    <!-- ── BASE ORNAMENT: corner rosettes ── -->
+    <!-- TL rosette -->
+    <g transform="translate(114,238)" opacity=".72" stroke="#c9a84c" fill="none">
+      <circle cx="0" cy="0" r="9" stroke-width=".9"/>
+      <circle cx="0" cy="0" r="3.5" fill="#c9a84c" opacity=".38"/>
+      <line x1="-9" y1="0" x2="9" y2="0" stroke-width=".75"/>
+      <line x1="0" y1="-9" x2="0" y2="9" stroke-width=".75"/>
+      <line x1="-6.4" y1="-6.4" x2="6.4" y2="6.4" stroke-width=".55"/>
+      <line x1="6.4" y1="-6.4" x2="-6.4" y2="6.4" stroke-width=".55"/>
+      <circle cx="0"  cy="-9" r="1.6" fill="#c9a84c" opacity=".55"/>
+      <circle cx="0"  cy="9"  r="1.6" fill="#c9a84c" opacity=".55"/>
+      <circle cx="-9" cy="0"  r="1.6" fill="#c9a84c" opacity=".55"/>
+      <circle cx="9"  cy="0"  r="1.6" fill="#c9a84c" opacity=".55"/>
+    </g>
+    <!-- TR rosette -->
+    <g transform="translate(406,238)" opacity=".72" stroke="#c9a84c" fill="none">
+      <circle cx="0" cy="0" r="9" stroke-width=".9"/>
+      <circle cx="0" cy="0" r="3.5" fill="#c9a84c" opacity=".38"/>
+      <line x1="-9" y1="0" x2="9" y2="0" stroke-width=".75"/>
+      <line x1="0" y1="-9" x2="0" y2="9" stroke-width=".75"/>
+      <line x1="-6.4" y1="-6.4" x2="6.4" y2="6.4" stroke-width=".55"/>
+      <line x1="6.4" y1="-6.4" x2="-6.4" y2="6.4" stroke-width=".55"/>
+      <circle cx="0"  cy="-9" r="1.6" fill="#c9a84c" opacity=".55"/>
+      <circle cx="0"  cy="9"  r="1.6" fill="#c9a84c" opacity=".55"/>
+      <circle cx="-9" cy="0"  r="1.6" fill="#c9a84c" opacity=".55"/>
+      <circle cx="9"  cy="0"  r="1.6" fill="#c9a84c" opacity=".55"/>
+    </g>
+    <!-- BL rosette -->
+    <g transform="translate(114,294)" opacity=".72" stroke="#c9a84c" fill="none">
+      <circle cx="0" cy="0" r="9" stroke-width=".9"/>
+      <circle cx="0" cy="0" r="3.5" fill="#c9a84c" opacity=".38"/>
+      <line x1="-9" y1="0" x2="9" y2="0" stroke-width=".75"/>
+      <line x1="0" y1="-9" x2="0" y2="9" stroke-width=".75"/>
+      <line x1="-6.4" y1="-6.4" x2="6.4" y2="6.4" stroke-width=".55"/>
+      <line x1="6.4" y1="-6.4" x2="-6.4" y2="6.4" stroke-width=".55"/>
+    </g>
+    <!-- BR rosette -->
+    <g transform="translate(406,294)" opacity=".72" stroke="#c9a84c" fill="none">
+      <circle cx="0" cy="0" r="9" stroke-width=".9"/>
+      <circle cx="0" cy="0" r="3.5" fill="#c9a84c" opacity=".38"/>
+      <line x1="-9" y1="0" x2="9" y2="0" stroke-width=".75"/>
+      <line x1="0" y1="-9" x2="0" y2="9" stroke-width=".75"/>
+      <line x1="-6.4" y1="-6.4" x2="6.4" y2="6.4" stroke-width=".55"/>
+      <line x1="6.4" y1="-6.4" x2="-6.4" y2="6.4" stroke-width=".55"/>
+    </g>
+
+    <!-- Left acanthus vine on base -->
+    <g opacity=".44" stroke="#c9a84c" fill="none" stroke-width=".85">
+      <path d="M128 266 Q148 244 168 264 Q183 278 200 260 Q214 244 228 264"/>
+      <circle cx="128" cy="266" r="3"   fill="#c9a84c"/>
+      <circle cx="168" cy="264" r="2.2" fill="#c9a84c" opacity=".5"/>
+      <circle cx="200" cy="260" r="2.2" fill="#c9a84c" opacity=".5"/>
+      <path d="M148 252 Q152 236 164 242" stroke-width=".65"/>
+      <path d="M186 266 Q192 248 200 252" stroke-width=".65"/>
+    </g>
+    <!-- Right acanthus (mirrored) -->
+    <g opacity=".44" stroke="#c9a84c" fill="none" stroke-width=".85" transform="translate(520,0) scale(-1,1)">
+      <path d="M128 266 Q148 244 168 264 Q183 278 200 260 Q214 244 228 264"/>
+      <circle cx="128" cy="266" r="3"   fill="#c9a84c"/>
+      <circle cx="168" cy="264" r="2.2" fill="#c9a84c" opacity=".5"/>
+      <circle cx="200" cy="260" r="2.2" fill="#c9a84c" opacity=".5"/>
+      <path d="M148 252 Q152 236 164 242" stroke-width=".65"/>
+      <path d="M186 266 Q192 248 200 252" stroke-width=".65"/>
+    </g>
+
+    <!-- Lock panel outline on base -->
+    <rect x="236" y="232" width="48" height="56" rx="4" fill="none" stroke="#c9a84c" stroke-width=".9" opacity=".42"/>
+    <polygon points="260,232 263,235 260,238 257,235" fill="#c9a84c" opacity=".55"/>
+    <polygon points="260,284 263,287 260,290 257,287" fill="#c9a84c" opacity=".55"/>
+    <polygon points="236,260 239,257 242,260 239,263" fill="#c9a84c" opacity=".55"/>
+    <polygon points="280,260 283,257 286,260 283,263" fill="#c9a84c" opacity=".55"/>
+
+    <!-- ── LOCK ── centred on base panel (base y=220 h=88, centre y=264) -->
+    <g id="lock-group" onclick="openBox()">
+      <!-- Glow pulse -->
+      <circle class="lock-glow" cx="260" cy="264" r="26" fill="rgba(201,168,76,.25)"/>
+      <!-- Lock body: 36w x 40h centred at 260,264 → x=242 y=244 -->
+      <rect class="lock-plate" x="242" y="244" width="36" height="40" rx="6"
+            fill="url(#goldLock)" stroke="#f0d478" stroke-width="1.5"/>
+      <!-- Inner bevel -->
+      <rect x="246" y="248" width="28" height="32" rx="4" fill="none" stroke="rgba(255,248,208,.28)" stroke-width="1"/>
+      <!-- Keyhole circle -->
+      <circle cx="260" cy="259" r="7" fill="#1a0e05"/>
+      <!-- Keyhole slot -->
+      <rect x="257.5" y="264" width="5" height="9" rx="1.5" fill="#1a0e05"/>
+    </g>
+
+    <!-- ── FEET ── -->
+    <rect x="104" y="308" width="22" height="14" rx="4" fill="url(#goldFoot)" stroke="#7a5818" stroke-width="1"/>
+    <rect x="164" y="308" width="22" height="14" rx="4" fill="url(#goldFoot)" stroke="#7a5818" stroke-width="1"/>
+    <rect x="334" y="308" width="22" height="14" rx="4" fill="url(#goldFoot)" stroke="#7a5818" stroke-width="1"/>
+    <rect x="394" y="308" width="22" height="14" rx="4" fill="url(#goldFoot)" stroke="#7a5818" stroke-width="1"/>
+
+    <!-- ── HINGE STRIP (between lid and base) ── -->
+    <rect x="90" y="215" width="340" height="10" rx="2" fill="url(#goldHinge)"/>
+    <!-- Hinge pins -->
+    <circle cx="175" cy="220" r="10" fill="url(#goldFoot)" stroke="#f0d478" stroke-width="1.2"/>
+    <circle cx="175" cy="220" r="4"  fill="rgba(255,248,208,.2)"/>
+    <circle cx="345" cy="220" r="10" fill="url(#goldFoot)" stroke="#f0d478" stroke-width="1.2"/>
+    <circle cx="345" cy="220" r="4"  fill="rgba(255,248,208,.2)"/>
+
+    <!-- ═══════════════════════════════
+         LID GROUP — animates open
+         Lid: x=90, y=110, w=340, h=108
+         Rotates from bottom edge y=218
+    ═══════════════════════════════ -->
+    <g id="lid-group">
+      <!-- Lid wood panel -->
+      <rect x="90" y="110" width="340" height="108" rx="5"
+            fill="url(#woodLid)" filter="url(#boxShadow)"/>
+      <!-- Grain -->
+      <rect x="90" y="110" width="340" height="108" rx="5" fill="url(#grainLid)" opacity=".85"/>
+      <!-- Sheen -->
+      <rect x="90" y="110" width="340" height="40" rx="5" fill="url(#lidSheen)"/>
+
+      <!-- Lid top gold trim -->
+      <rect x="90" y="110" width="340" height="4" rx="2" fill="url(#goldH)"/>
+      <!-- Lid bottom gold trim -->
+      <rect x="90" y="214" width="340" height="4" rx="2" fill="url(#goldH)"/>
+      <!-- Lid outer border -->
+      <rect x="92" y="112" width="336" height="104" rx="4" fill="none" stroke="#c9a84c" stroke-width="1.3" opacity=".62"/>
+      <!-- Lid inner border -->
+      <rect x="98" y="118" width="324" height="92"  rx="3" fill="none" stroke="#c9a84c" stroke-width=".55" opacity=".35"/>
+
+      <!-- Lid corner flourishes TL -->
+      <g transform="translate(108,126)" opacity=".75" stroke="#c9a84c" fill="none">
+        <path d="M0 0 Q16 0 16 16" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="4" fill="#c9a84c" opacity=".6"/>
+        <path d="M0 18 C6 10 12 9 20 4" stroke-width=".7"/>
+        <circle cx="20" cy="4" r="2" fill="#c9a84c" opacity=".5"/>
+      </g>
+      <!-- TR -->
+      <g transform="translate(412,126)" opacity=".75" stroke="#c9a84c" fill="none">
+        <path d="M0 0 Q-16 0 -16 16" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="4" fill="#c9a84c" opacity=".6"/>
+        <path d="M0 18 C-6 10 -12 9 -20 4" stroke-width=".7"/>
+        <circle cx="-20" cy="4" r="2" fill="#c9a84c" opacity=".5"/>
+      </g>
+      <!-- BL -->
+      <g transform="translate(108,206)" opacity=".75" stroke="#c9a84c" fill="none">
+        <path d="M0 0 Q16 0 16 -16" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="4" fill="#c9a84c" opacity=".6"/>
+        <path d="M0 -18 C6 -10 12 -9 20 -4" stroke-width=".7"/>
+        <circle cx="20" cy="-4" r="2" fill="#c9a84c" opacity=".5"/>
+      </g>
+      <!-- BR -->
+      <g transform="translate(412,206)" opacity=".75" stroke="#c9a84c" fill="none">
+        <path d="M0 0 Q-16 0 -16 -16" stroke-width="1.2"/>
+        <circle cx="0" cy="0" r="4" fill="#c9a84c" opacity=".6"/>
+        <path d="M0 -18 C-6 -10 -12 -9 -20 -4" stroke-width=".7"/>
+        <circle cx="-20" cy="-4" r="2" fill="#c9a84c" opacity=".5"/>
+      </g>
+
+      <!-- Left acanthus on lid -->
+      <g opacity=".48" stroke="#c9a84c" fill="none" stroke-width=".85">
+        <path d="M112 164 Q136 136 162 160 Q180 178 202 156 Q218 138 238 160"/>
+        <circle cx="112" cy="164" r="3"   fill="#c9a84c"/>
+        <circle cx="162" cy="160" r="2.2" fill="#c9a84c" opacity=".5"/>
+        <circle cx="202" cy="156" r="2.2" fill="#c9a84c" opacity=".5"/>
+        <path d="M134 148 Q138 130 152 138" stroke-width=".65"/>
+        <path d="M182 162 Q190 142 202 148" stroke-width=".65"/>
+        <circle cx="146" cy="128" r="1.8" fill="#c9a84c" opacity=".42"/>
+        <circle cx="196" cy="145" r="1.8" fill="#c9a84c" opacity=".42"/>
+      </g>
+      <!-- Right acanthus on lid (mirrored) -->
+      <g opacity=".48" stroke="#c9a84c" fill="none" stroke-width=".85" transform="translate(520,0) scale(-1,1)">
+        <path d="M112 164 Q136 136 162 160 Q180 178 202 156 Q218 138 238 160"/>
+        <circle cx="112" cy="164" r="3"   fill="#c9a84c"/>
+        <circle cx="162" cy="160" r="2.2" fill="#c9a84c" opacity=".5"/>
+        <circle cx="202" cy="156" r="2.2" fill="#c9a84c" opacity=".5"/>
+        <path d="M134 148 Q138 130 152 138" stroke-width=".65"/>
+        <path d="M182 162 Q190 142 202 148" stroke-width=".65"/>
+      </g>
+
+      <!-- Central medallion on lid -->
+      <g transform="translate(260,164)">
+        <!-- Outer dashed ring -->
+        <circle cx="0" cy="0" r="38" fill="none" stroke="#c9a84c" stroke-width=".85" stroke-dasharray="4 3" opacity=".5"/>
+        <circle cx="0" cy="0" r="31" fill="none" stroke="#c9a84c" stroke-width=".45" opacity=".3"/>
+        <!-- Key bow -->
+        <circle cx="0" cy="-16" r="13" fill="none" stroke="#c9a84c" stroke-width="2.2"/>
+        <circle cx="0" cy="-16" r="5.5" fill="#c9a84c" opacity=".32"/>
+        <!-- Key shaft -->
+        <rect x="-2.5" y="-3" width="5" height="30" rx="2.5" fill="#c9a84c"/>
+        <!-- Key teeth -->
+        <rect x="2.5" y="16"  width="8"   height="4.5" rx="1.5" fill="#c9a84c"/>
+        <rect x="2.5" y="23"  width="6.5" height="4"   rx="1.2" fill="#c9a84c"/>
+        <!-- Flames above key -->
+        <path d="M0,-32 C-4,-24 -7,-16 -2,-13 C-6,-20 -3,-26 0,-32Z" fill="#c9a84c" opacity=".48"/>
+        <path d="M0,-32 C4,-24  7,-16  2,-13 C 6,-20  3,-26 0,-32Z" fill="#c9a84c" opacity=".32"/>
+        <!-- Cardinal diamonds on ring -->
+        <polygon points="0,-38 3,-34 0,-30 -3,-34" fill="#c9a84c" opacity=".58"/>
+        <polygon points="0,30 3,34 0,38 -3,34"   fill="#c9a84c" opacity=".58"/>
+        <polygon points="-38,0 -34,-3 -30,0 -34,3" fill="#c9a84c" opacity=".58"/>
+        <polygon points="30,0 34,-3 38,0 34,3"  fill="#c9a84c" opacity=".58"/>
+      </g>
+    </g><!-- /lid-group -->
+
+    <!-- ── LIGHT BURST (radial glow on open) ── -->
+    <circle id="lightBurst" cx="260" cy="218" r="0" fill="none"
+            stroke="rgba(201,168,76,.0)" stroke-width="2"/>
+
+    <!-- Ground shadow ellipse -->
+    <ellipse cx="260" cy="326" rx="155" ry="10" fill="rgba(0,0,0,.55)"/>
+
+  </svg><!-- /scene SVG -->
+
+  <p class="hint" id="hint">— Click the lock to open —</p>
+</div>
+
+<!-- SCROLL MESSAGE -->
+<div class="overlay" id="overlay">
+  <div class="scroll-outer">
+    <div class="scroll-rod"></div>
+    <div class="scroll-parchment">
+      <div class="s-emblem">
+        <svg viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="27" cy="27" r="24" stroke="#9a7018" stroke-width="1" stroke-dasharray="4 3" opacity=".5"/>
+          <circle cx="27" cy="14" r="10" stroke="#7a5010" stroke-width="2.2" fill="none"/>
+          <circle cx="27" cy="14" r="4"  fill="#7a5010" opacity=".4"/>
+          <rect x="25" y="23" width="4" height="24" rx="2" fill="#7a5010"/>
+          <rect x="29" y="36" width="6" height="3.5" rx="1.4" fill="#7a5010"/>
+          <rect x="29" y="42" width="5" height="3"   rx="1.2" fill="#7a5010"/>
+          <path d="M27 3 C24 7 21.5 12 25.5 15 C22.5 11.5 25 7.5 27 3Z" fill="#7a5010" opacity=".42"/>
+        </svg>
+      </div>
+      <p class="s-title">The Golden Vault</p>
+      <p class="s-rule">✦ &nbsp; ✦ &nbsp; ✦</p>
+      <div class="s-body">
+        <span class="s-line" id="sl1">"You have been found worthy."</span>
+        <span class="s-line" id="sl2">&nbsp;</span>
+        <span class="s-line" id="sl3">"There is a matter requiring your particular talents.</span>
+        <span class="s-line" id="sl4">A wrong to be righted. A door to be opened.</span>
+        <span class="s-line" id="sl5">The details will follow — but know this:"</span>
+        <span class="s-line" id="sl6">&nbsp;</span>
+        <span class="s-line" id="sl7">"The Vault does not ask for heroes.</span>
+        <span class="s-line" id="sl8">It asks for people who know the difference</span>
+        <span class="s-line" id="sl9">between what is legal… and what is right."</span>
+        <span class="s-line" id="sl10">&nbsp;</span>
+        <span class="s-line" id="sl11">— Meera Raheer</span>
+      </div>
+      <button class="s-close" id="closeBtn" onclick="closeOverlay()">Close the Box</button>
+    </div>
+    <div class="scroll-rod"></div>
+  </div>
+</div>
+
+<script>
+// ── EMBERS ──
+const pWrap = document.getElementById('particles');
+for (let i = 0; i < 35; i++) {
+  const p = document.createElement('div');
+  p.className = 'ptcl';
+  const sz = Math.random() * 2.8 + .7;
+  p.style.cssText = `left:${Math.random()*100}%;bottom:0;width:${sz}px;height:${sz}px;
+    animation-duration:${Math.random()*16+9}s;animation-delay:${Math.random()*16}s`;
+  pWrap.appendChild(p);
+}
+
+// ── AUDIO ──
+let actx = null;
+function initAudio() { if (!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); }
+function tone(f, delay, dur=1.2) {
+  if (!actx) return;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.connect(g); g.connect(actx.destination);
+  o.type = 'triangle'; o.frequency.value = f;
+  const t = actx.currentTime + delay;
+  g.gain.setValueAtTime(0, t);
+  g.gain.linearRampToValueAtTime(0.07, t+.022);
+  g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+  o.start(t); o.stop(t+dur);
+}
+function playMelody() {
+  initAudio();
+  [[523.25,0],[659.25,.38],[783.99,.76],[1046.5,1.14],
+   [880,1.58],[783.99,2.05],[659.25,2.55],
+   [523.25,3.05],[659.25,3.48],[783.99,3.88],[659.25,4.38],[523.25,4.88]]
+  .forEach(([f,d]) => tone(f,d,1.3));
+}
+
+// ── NOTES ──
+const NOTES = ['♩','♪','♫','♬','𝄞'];
+function spawnNote() {
+  const scene = document.getElementById('scene').getBoundingClientRect();
+  const cx = scene.left + scene.width * 0.5;
+  const cy = scene.top  + scene.height * 0.68;
+  const n = document.createElement('div');
+  n.className = 'note';
+  n.textContent = NOTES[Math.floor(Math.random()*NOTES.length)];
+  const nx = (Math.random()-.5)*160, nr = (Math.random()-.5)*65;
+  n.style.cssText = `left:${cx + (Math.random()-.5)*60}px;top:${cy}px;
+    --nx:${nx}px;--nr:${nr}deg;font-size:${Math.random()*.9+.8}rem;`;
+  document.body.appendChild(n);
+  setTimeout(() => n.remove(), 3200);
+}
+
+// ── SVG LIGHT BURST ──
+function fireBurst() {
+  const burst = document.getElementById('lightBurst');
+  burst.setAttribute('r','0');
+  burst.setAttribute('stroke','rgba(201,168,76,0)');
+  burst.style.animation = 'none';
+  // Animate via JS keyframes
+  let start = null;
+  function step(ts) {
+    if (!start) start = ts;
+    const p = Math.min((ts - start) / 1800, 1);
+    const r = p < .25 ? p*4 * 80 : 80 * (1 - ((p-.25)/.75) * .6);
+    const op = p < .2 ? p*5 * .7 : .7 * (1 - ((p-.2)/.8));
+    burst.setAttribute('r', r.toFixed(1));
+    burst.setAttribute('stroke', `rgba(201,168,76,${op.toFixed(3)})`);
+    burst.setAttribute('stroke-width', (4 + r*.08).toFixed(1));
+    if (p < 1) requestAnimationFrame(step);
+    else { burst.setAttribute('r','0'); burst.setAttribute('stroke','rgba(201,168,76,0)'); }
+  }
+  requestAnimationFrame(step);
+}
+
+let isOpen=false, msgShown=false, noteTimer=null;
+
+function openBox() {
+  if (isOpen) return;
+  isOpen = true;
+  initAudio(); playMelody();
+  document.getElementById('hint').style.opacity = '0';
+
+  // Open lid
+  document.getElementById('lid-group').classList.add('open');
+
+  // Light burst
+  setTimeout(fireBurst, 480);
+
+  // Notes burst
+  setTimeout(() => {
+    let c = 0;
+    const b = setInterval(() => { spawnNote(); if(++c>=14) clearInterval(b); }, 160);
+    noteTimer = setInterval(() => { if(!msgShown) spawnNote(); }, 950);
+  }, 520);
+
+  // Dancer
+  setTimeout(() => {
+    const d = document.getElementById('dancer');
+    d.classList.add('show','spin');
+  }, 820);
+
+  // Show scroll
+  setTimeout(showScroll, 2600);
+}
+
+function showScroll() {
+  msgShown = true;
+  if (noteTimer) { clearInterval(noteTimer); noteTimer = null; }
+  document.getElementById('overlay').classList.add('show');
+  for (let i=1; i<=11; i++) {
+    setTimeout(() => {
+      const el = document.getElementById('sl'+i);
+      if (el) el.classList.add('on');
+    }, i*340);
+  }
+  setTimeout(() => document.getElementById('closeBtn').classList.add('on'), 11*340+550);
+}
+
+function closeOverlay() {
+  document.getElementById('overlay').classList.remove('show');
+  setTimeout(() => {
+    document.getElementById('lid-group').classList.remove('open');
+    const d = document.getElementById('dancer');
+    d.classList.remove('show','spin');
+    for (let i=1;i<=11;i++) {
+      const el=document.getElementById('sl'+i);
+      if(el) el.classList.remove('on');
+    }
+    document.getElementById('closeBtn').classList.remove('on');
+    isOpen=false; msgShown=false;
+    document.getElementById('hint').style.opacity = '.48';
+  }, 800);
+}
+</script>
+</body>
+</html>
