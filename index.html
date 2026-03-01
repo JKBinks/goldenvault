@@ -717,17 +717,25 @@ html, body {
       <p class="s-title">The Golden Vault</p>
       <p class="s-rule">✦ &nbsp; ✦ &nbsp; ✦</p>
       <div class="s-body">
-        <span class="s-line" id="sl1">"You have been found worthy."</span>
+        <span class="s-line" id="sl1">"Greetings, operatives."</span>
         <span class="s-line" id="sl2">&nbsp;</span>
-        <span class="s-line" id="sl3">"There is a matter requiring your particular talents.</span>
-        <span class="s-line" id="sl4">A wrong to be righted. A door to be opened.</span>
-        <span class="s-line" id="sl5">The details will follow — but know this:"</span>
+        <span class="s-line" id="sl3">The Golden Vault has learned that the egg of an eldritch horror</span>
+        <span class="s-line" id="sl4">has been mistaken for a historical object and is about to go on display</span>
+        <span class="s-line" id="sl5">at the Varkenbluff Museum of Natural History.</span>
         <span class="s-line" id="sl6">&nbsp;</span>
-        <span class="s-line" id="sl7">"The Vault does not ask for heroes.</span>
-        <span class="s-line" id="sl8">It asks for people who know the difference</span>
-        <span class="s-line" id="sl9">between what is legal… and what is right."</span>
+        <span class="s-line" id="sl7">The anthropologist Dr. Cassee Dannell tried to warn officials</span>
+        <span class="s-line" id="sl8">about this egg, known as the Murkmire Stone — but none believed her.</span>
+        <span class="s-line" id="sl9">We do. And we know that if this egg hatches, many will die. Or worse.</span>
         <span class="s-line" id="sl10">&nbsp;</span>
-        <span class="s-line" id="sl11">— Meera Raheer</span>
+        <span class="s-line" id="sl11">Your mission: infiltrate the museum, steal the egg,</span>
+        <span class="s-line" id="sl12">and return it to Dr. Dannell, who will neutralize it.</span>
+        <span class="s-line" id="sl13">&nbsp;</span>
+        <span class="s-line" id="sl14">There is no time to waste. The egg could hatch any moment.</span>
+        <span class="s-line" id="sl15">Begin by meeting with Dr. Dannell.</span>
+        <span class="s-line" id="sl16">&nbsp;</span>
+        <span class="s-line" id="sl17">"Good luck, operatives."</span>
+        <span class="s-line" id="sl18">&nbsp;</span>
+        <span class="s-line" id="sl19">— Meera Raheer</span>
       </div>
       <button class="s-close" id="closeBtn" onclick="closeOverlay()">Close the Box</button>
     </div>
@@ -842,13 +850,13 @@ function showScroll() {
   msgShown = true;
   if (noteTimer) { clearInterval(noteTimer); noteTimer = null; }
   document.getElementById('overlay').classList.add('show');
-  for (let i=1; i<=11; i++) {
+  for (let i=1; i<=19; i++) {
     setTimeout(() => {
       const el = document.getElementById('sl'+i);
       if (el) el.classList.add('on');
-    }, i*340);
+    }, i*320);
   }
-  setTimeout(() => document.getElementById('closeBtn').classList.add('on'), 11*340+550);
+  setTimeout(() => document.getElementById('closeBtn').classList.add('on'), 19*320+550);
 }
 
 function closeOverlay() {
@@ -857,7 +865,7 @@ function closeOverlay() {
     document.getElementById('lid-group').classList.remove('open');
     const d = document.getElementById('dancer');
     d.classList.remove('show','spin');
-    for (let i=1;i<=11;i++) {
+    for (let i=1;i<=19;i++) {
       const el=document.getElementById('sl'+i);
       if(el) el.classList.remove('on');
     }
